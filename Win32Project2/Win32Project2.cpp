@@ -6,7 +6,7 @@
 
 #define MAX_LOADSTRING 100
 
-static COLORREF greenColor = RGB(0, 255, 0);
+static COLORREF greenColor = RGB(0, 255, 0);//some other changes
 
 // Global Variables:
 HINSTANCE hInst;                                // current instance
