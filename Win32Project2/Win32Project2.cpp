@@ -19,6 +19,66 @@ BOOL                InitInstance(HINSTANCE, int);
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);//some changes
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 
+//////////////////////paint functions/////////////////
+
+///////////optimal line///////////////
+void line(int x0, int y0, int x1, int y1, HDC hdc, COLORREF color) 
+{
+	bool steep = false;
+	if ((x0 - x1) < (y0 - y1)) {
+		std::swap(x0, y0);
+		std::swap(x1, y1);
+		steep = true;
+	}
+	if (x0 > x1) {
+		std::swap(x0, x1);
+		std::swap(y0, y1);
+	}
+	int dx = x1 - x0;
+	int dy = y1 - y0;
+	int derror2 = (dy) * 2;
+	int error2 = 0;
+	int y = y0;
+	for (int x = x0; x <= x1; x++) {
+		if (steep) {
+			SetPixel(hdc, y, x, color);
+		}
+		else {
+			SetPixel(hdc, x, y, color);
+		}
+		error2 += derror2;
+
+		if (error2 > dx) {
+			y += (y1 > y0 ? 1 : -1);
+			error2 -= dx * 2;
+		}
+	}
+}
+/////////////////////////////////////
+
+///////////////triangle//////////////
+void triangle(std::vector<int>& v0, std::vector<int>& v1, std::vector<int>& v2, HDC hdc, COLORREF color)
+{
+	/*
+	if (v0.at(0) > v1.at(1)) std::swap(v0, v1);
+	if (v0.at(0) > v2.at(1)) std::swap(v0, v2);
+	if (v1.at(0) > v2.at(1)) std::swap(v1, v2);
+	*/
+	int xa = v0.at(0);
+	int ya = v0.at(1);
+	int xb = v1.at(0);
+	int yb = v1.at(1);
+	int xc = v2.at(0);
+	int yc = v2.at(1);
+
+	line(v0.at(0), v0.at(1), v1.at(0), v1.at(1), hdc, color);
+	line(v1.at(0), v1.at(1), v2.at(0), v2.at(1), hdc, color);
+	line(v2.at(0), v2.at(1), v0.at(0), v0.at(1), hdc, color);
+}
+/////////////////////////////////////
+
+/////////////////////////////////////////////////////////
+
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
                      _In_ LPWSTR    lpCmdLine,
@@ -149,12 +209,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(hWnd, &ps);
             // TODO: Add any drawing code that uses hdc here...
+
+			//1st test line
 			for (int i = 0; i < 100; i++) {
 				SetPixel(hdc, 50+i, 50+i, greenColor);
 			}
 
 
-
+			//optimal circle
+			/*
 			int x0 = 400;
 			int y0 = 300;
 			int radius = 200;
@@ -189,8 +252,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					err += dx - (radius << 1);
 				}
 			}
+			*/
 
-
+			//bad line
 			int lx0 = 80;
 			int ly0 = 50;
 			int lx1 = 180;
@@ -201,6 +265,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				SetPixel(hdc, lx, ly, greenColor);
 			}
 
+			//optimal line
+			line(410, 50, 510, 150, hdc, greenColor);
+
+			//triangle test
+			std::vector<int> v0 = { 200, 200 };
+			std::vector<int> v1 = { 270, 220 };
+			std::vector<int> v2 = { 220, 300 };
+
+			triangle(v0, v1, v2, hdc, greenColor);
 
 
 			//
